@@ -1,10 +1,13 @@
 "use client";
-import axios from "axios";
+
+import { request } from "@/app/utils";
+import { signIn, useSession } from "next-auth/react";
 import { Button, Input } from "@/app/components";
 import AuthSocialButton from "./AuthSocialButton";
 import { useState, useCallback } from "react";
 import { useForm, FieldValues, SubmitHandler } from "react-hook-form";
 import { BsGithub, BsGoogle } from "react-icons/bs";
+import { toast } from "react-hot-toast";
 type Variant = "LOGIN" | "REGISTER";
 const AuthForm = () => {
   const [variant, setVariant] = useState<Variant>("LOGIN");
@@ -27,19 +30,37 @@ const AuthForm = () => {
       password: "",
     },
   });
-  const onSubmit: SubmitHandler<FieldValues> = (data) => {
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     setIsLoading(true);
+    // Axios Register
     if (variant === "REGISTER") {
-      // Axios Register
-      axios.post("/api/register", data);
+      try {
+        const res = await request.post("/register", data);
+        toast.error(res.msg);
+      } catch (error) {
+        toast.error("Something went wrong !");
+      } finally {
+        setIsLoading(false);
+      }
     }
     if (variant === "LOGIN") {
       // NextAuth Sigin
+      signIn("credentials", {
+        ...data,
+        redirect: false,
+      }).then((callback) => {
+        if (callback?.error) {
+          toast.error("Invalid credentials");
+        }
+        if (callback?.ok) {
+          toast.success("Logged in !");
+        }
+      });
     }
   };
   const socialAction = (action: "github" | "google") => {
-    setIsLoading(true);
     // NextAuth Social Sign in
+    setIsLoading(true);
   };
   return (
     <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

@@ -6,7 +6,17 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const body = await request.json();
   const { email, name, password } = body;
-
+  const hasedUser = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+  if (hasedUser) {
+    return NextResponse.json({
+      code: 200,
+      msg: "Has Register went Login !",
+    });
+  }
   const hashedPassword = await bcryptjs.hash(password, 12);
 
   const user = await prisma.user.create({
@@ -17,5 +27,11 @@ export async function POST(request: Request) {
     },
   });
 
-  return NextResponse.json(user);
+  return NextResponse.json({
+    data: {
+      user,
+    },
+    msg: "Register Success!",
+    code: 200,
+  });
 }
