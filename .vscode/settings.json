@@ -5,11 +5,13 @@
   "editor.quickSuggestions": {
     "strings": "on"
   },
-  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "typescript.tsdk": "node_modules\\.pnpm\\registry.npmmirror.com+typescript@5.0.4\\node_modules\\typescript\\lib",
   // // 默认全部使用prettier格式化工具
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   } // 设置保存时格式化
+  ,
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }
