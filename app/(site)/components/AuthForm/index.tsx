@@ -1,18 +1,25 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import AuthSocialButton from "../AuthSocialButton";
 import { BsGithub, BsGoogle } from "react-icons/bs";
 import { toast } from "react-hot-toast";
 import { request } from "@/app/utils";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import type { FieldValues, SubmitHandler } from "react-hook-form";
 type Variant = "LOGIN" | "REGISTER";
 import Form from "./Form";
-// const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-export default function ComposedTextField() {
+export default function AuthForm() {
+  const router = useRouter();
+  const session = useSession();
   const [variant, setVariant] = useState<Variant>("LOGIN");
   const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    if (session?.status === "authenticated") {
+      router.push("/users");
+    }
+  }, [session?.status, router]);
   const {
     control: control,
     handleSubmit,
@@ -32,6 +39,11 @@ export default function ComposedTextField() {
       try {
         // TODO: data['password'] md5加密
         const res = await request.post("/register", data);
+        // 注册成功直接添加session push user
+        await signIn("credentials", {
+          ...data,
+          redirect: false,
+        });
         toast.success(res.msg);
       } catch (error) {
         toast.error("Something went wrong !");
@@ -48,7 +60,7 @@ export default function ComposedTextField() {
         if (callback?.error) {
           toast.error("Invalid credentials");
         }
-        if (callback?.ok) {
+        if (callback?.ok && !callback.error) {
           toast.success("Logged in !");
         }
       });
@@ -57,6 +69,18 @@ export default function ComposedTextField() {
   const socialAction = (action: "github" | "google") => {
     // NextAuth Social Sign in
     setIsLoading(true);
+    signIn(action, {
+      redirect: false,
+    })
+      .then((callback) => {
+        if (callback?.error) {
+          toast.error("Invalid credentials");
+        }
+        if (callback?.ok && !callback.error) {
+          toast.success("Logged in !");
+        }
+      })
+      .finally(() => setIsLoading(false));
   };
   const toggleVariant = useCallback(() => {
     if (variant === "LOGIN") {

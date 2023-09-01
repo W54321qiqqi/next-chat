@@ -1,5 +1,6 @@
 "use client";
-import { TextField, Button } from "@mui/material";
+import { TextField } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import AddToHomeScreenIcon from "@mui/icons-material/AddToHomeScreen";
 import React from "react";
 import { Controller } from "react-hook-form";
@@ -62,9 +63,11 @@ const Form: React.FC<LoginFormProps> = ({
             disabled={disabled}
             error={!!errors.email}
             size="small"
+            type="email"
             helperText={
               errors.email ? "Please enter the correct email address." : ""
             }
+            autoComplete="username"
           />
         )}
       ></Controller>
@@ -83,19 +86,20 @@ const Form: React.FC<LoginFormProps> = ({
             size="small"
             type="password"
             helperText={errors.password ? "Please enter the poassword." : ""}
+            autoComplete="current-password"
           />
         )}
       ></Controller>
-      <Button
+      <LoadingButton
         variant="outlined"
         startIcon={<AddToHomeScreenIcon />}
         fullWidth
-        disabled={disabled}
+        loading={disabled}
         className="mt-2 sm:mt-2"
         type="submit"
       >
         {variant === "LOGIN" ? "Sign in" : "Register"}
-      </Button>
+      </LoadingButton>
     </form>
   );
 };
