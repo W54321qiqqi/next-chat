@@ -47,11 +47,9 @@ export default function ComposedTextField() {
       }).then((callback) => {
         if (callback?.error) {
           toast.error("Invalid credentials");
-          console.log("1111111111");
         }
         if (callback?.ok) {
           toast.success("Logged in !");
-          console.log("2222222222");
         }
       });
     }
