@@ -14,5 +14,6 @@ const config: Config = {
       strategy: "class",
     }),
   ],
+  important: true,
 };
 export default config;

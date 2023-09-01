@@ -14,9 +14,10 @@ export async function POST(request: Request) {
   if (hasedUser) {
     return NextResponse.json({
       code: 200,
-      msg: "Has Register went Login !",
+      msg: "Registered to log in !",
     });
   }
+  // TODO:服务端解密
   const hashedPassword = await bcryptjs.hash(password, 12);
 
   const user = await prisma.user.create({
