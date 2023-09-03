@@ -45,8 +45,6 @@ export default function AuthForm() {
           redirect: false,
         });
         toast.success(res.msg);
-      } catch (error) {
-        toast.error("Something went wrong !");
       } finally {
         setIsLoading(false);
       }

@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   });
   if (hasedUser) {
     return NextResponse.json({
-      code: 200,
+      status: 200,
       msg: "Registered to log in !",
     });
   }
@@ -33,6 +33,6 @@ export async function POST(request: Request) {
       user,
     },
     msg: "Register Success!",
-    code: 200,
+    status: 200,
   });
 }
