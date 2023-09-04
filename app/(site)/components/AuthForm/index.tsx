@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import { request } from "@/app/utils";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { Encrypt } from "@/app/utils";
 import type { FieldValues, SubmitHandler } from "react-hook-form";
 type Variant = "LOGIN" | "REGISTER";
 import Form from "./Form";
@@ -33,11 +34,12 @@ export default function AuthForm() {
     },
   });
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    const md5Password = Encrypt(data.password);
+    data.password = md5Password;
     setIsLoading(true);
     // Axios Register
     if (variant === "REGISTER") {
       try {
-        // TODO: data['password'] md5加密
         const res = await request.post("/register", data);
         // 注册成功直接添加session push user
         await signIn("credentials", {

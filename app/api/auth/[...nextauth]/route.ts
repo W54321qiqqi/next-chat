@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-
+import { Decrypt } from "@/app/utils";
 import prisma from "@/app/libs/prismadb";
 
 export const authOptions: AuthOptions = {
@@ -38,9 +38,11 @@ export const authOptions: AuthOptions = {
         if (!user || !user?.hashedPassword) {
           throw new Error("Invalid credentials");
         }
-
+        // 解密
+        const decryptPSW = Decrypt(credentials.password);
+        // 加密对比数据库
         const isCorrectPassword = await bcryptjs.compare(
-          credentials.password,
+          decryptPSW,
           user.hashedPassword
         );
         if (!isCorrectPassword) {
