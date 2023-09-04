@@ -1,6 +1,6 @@
 import Sidebar from "@/app/components/Sidebar/Sidebar";
 import UserList from "./components/UserList";
-import getUsers from "../actions/getUser";
+import getUsers from "../actions/getUsers";
 export default async function UsersLayout({
   children,
 }: {
@@ -10,8 +10,10 @@ export default async function UsersLayout({
   return (
     // @ts-expect-error 服务端组件
     <Sidebar>
-      <UserList items={users}></UserList>
-      <div className="h-full">{children}</div>
+      <div className="h-full">
+        <UserList items={users}></UserList>
+        {children}
+      </div>
     </Sidebar>
   );
 }

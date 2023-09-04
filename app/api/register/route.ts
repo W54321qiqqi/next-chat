@@ -1,5 +1,5 @@
 import bcryptjs from "bcryptjs";
-
+import { Decrypt } from "@/app/utils";
 import prisma from "@/app/libs/prismadb";
 import { NextResponse } from "next/server";
 
@@ -17,8 +17,8 @@ export async function POST(request: Request) {
       msg: "Registered to log in !",
     });
   }
-  // TODO:服务端解密
-  const hashedPassword = await bcryptjs.hash(password, 12);
+  const decryptPSW = Decrypt(password);
+  const hashedPassword = await bcryptjs.hash(decryptPSW, 12);
 
   const user = await prisma.user.create({
     data: {

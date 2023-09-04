@@ -22,7 +22,7 @@ service.interceptors.request.use((config) => {
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     const data = response.data;
-    if (data.status === 200) {
+    if (data.status === 200 || response.status === 200) {
       return data;
     } else {
       toast.error(data?.msg ?? "Invalid data");

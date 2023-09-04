@@ -1,5 +1,4 @@
-// import axios from "axios";
-import { request } from "@/app/utils";
+import axios from "axios";
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@prisma/client";
@@ -15,16 +14,14 @@ const UserBox: React.FC<UserBoxProps> = ({ data }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleClick = useCallback(async () => {
+  const handleClick = useCallback(() => {
     setIsLoading(true);
-    // 获取对话
-    try {
-      const res = await request.post("/conversations", { userId: data.id });
-      console.log("🚀 ~ file: UserBox.tsx:23 ~ handleClick ~ res:", res);
-      router.push(`/conversations/${res.data.id}`);
-    } finally {
-      setIsLoading(false);
-    }
+    axios
+      .post("/api/conversations", { userId: data.id })
+      .then((data) => {
+        router.push(`/conversations/${data.data.id}`);
+      })
+      .finally(() => setIsLoading(false));
   }, [data, router]);
 
   return (
