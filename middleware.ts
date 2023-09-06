@@ -7,5 +7,5 @@ export default withAuth({
 });
 // 鉴权以下路由
 export const config = {
-  matcher: ["/users/:path*"],
+  matcher: ["/users/:path*", "/conversations/:path*"],
 };

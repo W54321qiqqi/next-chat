@@ -61,9 +61,11 @@ export default function AuthForm() {
       }).then((callback) => {
         if (callback?.error) {
           toast.error("Invalid credentials");
+          setIsLoading(false);
         }
         if (callback?.ok && !callback.error) {
           toast.success("Logged in !");
+          setIsLoading(false);
         }
       });
     }

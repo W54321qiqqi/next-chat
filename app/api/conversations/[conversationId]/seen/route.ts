@@ -1,0 +1,73 @@
+import { NextResponse } from "next/server";
+
+import getCurrentUser from "@/app/actions/getCurrentUser";
+import prisma from "@/app/libs/prismadb";
+
+interface IParams {
+  conversationId?: string;
+}
+
+export async function POST(request: Request, { params }: { params: IParams }) {
+  try {
+    const currentUser = await getCurrentUser();
+    const { conversationId } = params;
+
+    if (!currentUser?.id || !currentUser?.email) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    // 查找现有对话
+    const conversation = await prisma.conversation.findUnique({
+      where: {
+        id: conversationId,
+      },
+      include: {
+        messages: {
+          include: {
+            seen: true,
+          },
+        },
+        users: true,
+      },
+    });
+
+    if (!conversation) {
+      return new NextResponse("Invalid ID", { status: 400 });
+    }
+
+    // 找到最后的消息
+    const lastMessage = conversation.messages[conversation.messages.length - 1];
+
+    if (!lastMessage) {
+      return NextResponse.json(conversation);
+    }
+
+    // 上次消息的更新
+    const updatedMessage = await prisma.message.update({
+      where: {
+        id: lastMessage.id,
+      },
+      include: {
+        sender: true,
+        seen: true,
+      },
+      data: {
+        seen: {
+          connect: {
+            id: currentUser.id,
+          },
+        },
+      },
+    });
+
+    // 如果用户已经看到消息，则无需继续
+    if (lastMessage.seenIds.indexOf(currentUser.id) !== -1) {
+      return NextResponse.json(conversation);
+    }
+
+    return new NextResponse("Success");
+  } catch (error) {
+    console.log(error, "ERROR_MESSAGES_SEEN");
+    return new NextResponse("Error", { status: 500 });
+  }
+}
