@@ -22,7 +22,7 @@ export default function AuthForm() {
     }
   }, [session?.status, router]);
   const {
-    control: control,
+    control,
     handleSubmit,
     formState: { errors },
     reset,

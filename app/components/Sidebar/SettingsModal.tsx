@@ -1,13 +1,15 @@
 "use client";
 
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { User } from "@prisma/client";
 import { CldUploadButton } from "next-cloudinary";
-
-import Input from "../inputs/Input";
+import { Controller } from "react-hook-form";
+import type { FieldValues, SubmitHandler } from "react-hook-form";
+import { TextField } from "@mui/material";
+// import Input from "../inputs/Input";
 import Modal from "../Modals/Modal";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
@@ -18,7 +20,6 @@ interface SettingsModalProps {
   onClose: () => void;
   currentUser: User;
 }
-
 const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
@@ -30,10 +31,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   console.log(currentUser, "&TEST_CURRENT_USER");
 
   const {
-    register,
+    control,
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<FieldValues>({
     defaultValues: {
@@ -52,7 +54,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
-
     axios
       .post("/api/settings", data)
       .then(() => {
@@ -62,9 +63,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       .catch(() => toast.error("Something went wrong!"))
       .finally(() => setIsLoading(false));
   };
-
+  const closeModal = () => {
+    onClose();
+    reset();
+  };
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={closeModal}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-12">
           <div className="border-b border-gray-900/10 pb-12">
@@ -83,14 +87,23 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </p>
 
             <div className="mt-10 flex flex-col gap-y-8">
-              <Input
-                disabled={isLoading}
-                label="Name"
-                id="name"
-                errors={errors}
-                required
-                register={register}
-              />
+              <Controller
+                name="name"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    id="name"
+                    label="Name"
+                    disabled={isLoading}
+                    error={!!errors.name}
+                    size="small"
+                    helperText={errors.name ? "Please enter the name." : ""}
+                  />
+                )}
+              ></Controller>
               <div>
                 <label
                   htmlFor="photo"
@@ -117,7 +130,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   <CldUploadButton
                     options={{ maxFiles: 1 }}
                     onUpload={handleUpload}
-                    uploadPreset="pgc9ehd5"
+                    uploadPreset="wf1esmgd"
                   >
                     <Button
                       disabled={isLoading}
@@ -142,7 +155,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             gap-x-6
           "
         >
-          <Button disabled={isLoading} color="secondary" onClick={onClose}>
+          <Button disabled={isLoading} color="secondary" onClick={closeModal}>
             Cancel
           </Button>
           <Button disabled={isLoading} type="submit">
