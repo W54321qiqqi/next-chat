@@ -5,6 +5,7 @@ import ToasterContext from "./context/ToasterContext";
 import AuthContext from "./context/AuthContext";
 const inter = Inter({ subsets: ["latin"] });
 import ThemeRegistry from "@/app/components/ThemeRegistry/ThemeRegistry";
+import ActiveStatus from "./components/ActiveStatus";
 
 export const metadata: Metadata = {
   title: "Messenger Clone",
@@ -21,6 +22,7 @@ export default function RootLayout({
         <ThemeRegistry>
           <AuthContext>
             <ToasterContext></ToasterContext>
+            <ActiveStatus></ActiveStatus>
             {children}
           </AuthContext>
         </ThemeRegistry>

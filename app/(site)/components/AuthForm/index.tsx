@@ -41,12 +41,17 @@ export default function AuthForm() {
     if (variant === "REGISTER") {
       try {
         const res = await request.post("/register", data);
-        // 注册成功直接添加session push user
-        await signIn("credentials", {
-          ...data,
-          redirect: false,
-        });
-        toast.success(res.msg);
+        if (res.status == 400) {
+          toast.error(res.msg);
+          toggleVariant();
+        } else {
+          // 注册成功直接添加session push user
+          await signIn("credentials", {
+            ...data,
+            redirect: false,
+          });
+          toast.success(res.msg);
+        }
       } catch (error) {
         toast.error("Something went wrong !");
       } finally {

@@ -5,13 +5,12 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { User } from "@prisma/client";
-
-import Input from "../inputs/Input";
-import Select from "../inputs/Select";
+import { TextField } from "@mui/material";
+import Select from "../Select/index";
 import Modal from "./Modal";
 import { toast } from "react-hot-toast";
 import { Button } from "@mui/material";
-
+import { Controller } from "react-hook-form";
 interface GroupChatModalProps {
   isOpen?: boolean;
   onClose: () => void;
@@ -27,11 +26,12 @@ const GroupChatModal: React.FC<GroupChatModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const {
-    register,
+    control,
     handleSubmit,
     setValue,
     watch,
     formState: { errors },
+    reset,
   } = useForm<FieldValues>({
     defaultValues: {
       name: "",
@@ -40,24 +40,50 @@ const GroupChatModal: React.FC<GroupChatModalProps> = ({
   });
 
   const members = watch("members");
+  const [isCheck, setIsCheck] = useState(false);
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
+    if (!data) {
+      setIsCheck(false);
+      return;
+    }
+    setIsCheck(true);
     setIsLoading(true);
-
     axios
       .post("/api/conversations", {
         ...data,
         isGroup: true,
       })
-      .then(() => {
-        router.refresh();
-        onClose();
+      .then((res) => {
+        if (res.data.status === 400 && res.data.message) {
+          toast.error(res.data.message);
+        } else if (
+          res.data.status !== 400 ||
+          res.data.status !== 500 ||
+          res.data.status !== 401
+        ) {
+          router.refresh();
+          onClose();
+        }
       })
       .catch(() => toast.error("Something went wrong!"))
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        setIsLoading(false);
+        resetData();
+      });
   };
-
+  const handleClose = () => {
+    onClose();
+    resetData();
+  };
+  const resetData = () => {
+    reset();
+    setIsCheck(false);
+  };
+  const onConfirm = () => {
+    isCheck && onClose();
+  };
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={handleClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-12">
           <div className="border-b border-gray-900/10 pb-12">
@@ -75,41 +101,62 @@ const GroupChatModal: React.FC<GroupChatModalProps> = ({
               Create a chat with more than 2 people.
             </p>
             <div className="mt-10 flex flex-col gap-y-8">
-              <Input
-                disabled={isLoading}
-                label="Name"
-                id="name"
-                errors={errors}
-                required
-                register={register}
-              />
-              <Select
-                disabled={isLoading}
-                label="Members"
-                options={users.map((user) => ({
-                  value: user.id,
-                  label: user.name,
-                }))}
-                onChange={(value) =>
-                  setValue("members", value, {
-                    shouldValidate: true,
-                  })
-                }
-                value={members}
-              />
+              <Controller
+                name="name"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TextField
+                    fullWidth
+                    className="focus:ring-rose-500"
+                    {...field}
+                    id="name"
+                    label="Name"
+                    disabled={isLoading}
+                    error={!!errors.name}
+                    size="small"
+                    type="text"
+                    helperText={errors.name ? "Please enter the name." : ""}
+                  />
+                )}
+              ></Controller>
+              <Controller
+                name="members"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    disabled={isLoading}
+                    label="Members"
+                    options={users.map((user) => ({
+                      value: user.id,
+                      label: user.name,
+                    }))}
+                    onChange={(value) =>
+                      setValue("members", value, {
+                        shouldValidate: true,
+                      })
+                    }
+                    value={members}
+                    error={!!errors.members}
+                    helperText={"Please select an option."}
+                  />
+                )}
+              ></Controller>
             </div>
           </div>
         </div>
         <div className="mt-6 flex items-center justify-end gap-x-6">
           <Button
             disabled={isLoading}
-            onClick={onClose}
+            onClick={handleClose}
             type="button"
             color="secondary"
           >
             Cancel
           </Button>
-          <Button disabled={isLoading} onClick={onClose} type="submit">
+          <Button disabled={isLoading} onClick={onConfirm} type="submit">
             Create
           </Button>
         </div>
