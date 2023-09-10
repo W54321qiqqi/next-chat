@@ -1,5 +1,6 @@
 import type { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 export enum ContentTypeEnum {
   // json
   JSON = "application/json;charset=UTF-8",
@@ -24,6 +25,7 @@ service.interceptors.response.use(
     if (data.status === 200 || response.status === 200) {
       return data;
     } else {
+      toast.error(data?.msg ?? "Invalid data");
       return Promise.reject(data);
     }
   },

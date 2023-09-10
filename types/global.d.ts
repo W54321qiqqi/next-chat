@@ -13,4 +13,5 @@ declare global {
     messages: FullMessageType[];
   };
 }
+
 export {};
