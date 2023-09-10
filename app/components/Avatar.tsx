@@ -3,8 +3,7 @@
 import { User } from "@prisma/client";
 
 import useActiveList from "../hooks/useActiveList";
-import Image from "next/image";
-
+import { Avatar as MuiAvatar } from "@mui/material";
 interface AvatarProps {
   user?: User;
 }
@@ -26,11 +25,10 @@ const Avatar: React.FC<AvatarProps> = ({ user }) => {
         md:w-11
       "
       >
-        <Image
-          fill
+        <MuiAvatar
           src={user?.image || "/images/placeholder.jpg"}
           alt="Avatar"
-        />
+        ></MuiAvatar>
       </div>
       {isActive ? (
         <span

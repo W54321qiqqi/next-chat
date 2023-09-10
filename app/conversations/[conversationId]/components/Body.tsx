@@ -2,26 +2,22 @@
 
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-
-import { pusherClient } from "@/app/libs/pusher";
-import useConversation from "@/app/hooks/useConversation";
 import MessageBox from "./MessageBox";
+import useConversation from "@/app/hooks/useConversation";
+import { pusherClient } from "@/app/libs/pusher";
 import { find } from "lodash";
-
 interface BodyProps {
   initialMessages: FullMessageType[];
 }
 
-const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
-  const bottomRef = useRef<HTMLDivElement>(null);
+const Body: React.FC<BodyProps> = ({ initialMessages }) => {
   const [messages, setMessages] = useState(initialMessages);
-
+  const bottomRef = useRef<HTMLDivElement>(null);
   const { conversationId } = useConversation();
-
+  const lastMsgIndex = messages.length - 1;
   useEffect(() => {
     axios.post(`/api/conversations/${conversationId}/seen`);
   }, [conversationId]);
-
   useEffect(() => {
     pusherClient.subscribe(conversationId);
     bottomRef?.current?.scrollIntoView();
@@ -66,10 +62,10 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
     <div className="flex-1 overflow-y-auto">
       {messages.map((message, i) => (
         <MessageBox
-          isLast={i === messages.length - 1}
+          isLast={i === lastMsgIndex}
           key={message.id}
           data={message}
-        />
+        ></MessageBox>
       ))}
       <div className="pt-24" ref={bottomRef} />
     </div>

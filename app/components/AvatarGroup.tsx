@@ -1,44 +1,49 @@
 "use client";
 
 import { User } from "@prisma/client";
-import Image from "next/image";
+import Badge from "@mui/material/Badge";
+import Avatar from "@mui/material/Avatar";
+import { styled } from "@mui/material/styles";
 
 interface AvatarGroupProps {
   users?: User[];
 }
 
 const AvatarGroup: React.FC<AvatarGroupProps> = ({ users = [] }) => {
-  const slicedUsers = users.slice(0, 3);
-
-  const positionMap = {
-    0: "top-0 left-[12px]",
-    1: "bottom-0",
-    2: "bottom-0 right-0",
+  const SmallAvatar = styled(Avatar)(({ theme }) => ({
+    width: 22,
+    height: 22,
+    border: `2px solid ${theme.palette.background.paper}`,
+  }));
+  const sliceRenderAvatar = (user: User) => {
+    if (user) {
+      return (
+        <SmallAvatar
+          alt={user.name!}
+          src={user.image || "/images/placeholder.jpg"}
+        />
+      );
+    } else {
+      return null;
+    }
   };
-
   return (
-    <div className="relative h-11 w-11">
-      {slicedUsers.map((user, index) => (
-        <div
-          key={user.id}
-          className={`
-            absolute
-            inline-block 
-            rounded-full 
-            overflow-hidden
-            h-[21px]
-            w-[21px]
-            ${positionMap[index as keyof typeof positionMap]}
-          `}
-        >
-          <Image
-            fill
-            src={user?.image || "/images/placeholder.jpg"}
-            alt="Avatar"
-          />
-        </div>
-      ))}
-    </div>
+    <Badge
+      overlap="circular"
+      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      badgeContent={sliceRenderAvatar(users[2])}
+    >
+      <Badge
+        overlap="circular"
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        badgeContent={sliceRenderAvatar(users[1])}
+      >
+        <Avatar
+          alt={users[0].name!}
+          src={users[0].image || "/images/placeholder.jpg"}
+        />
+      </Badge>
+    </Badge>
   );
 };
 
